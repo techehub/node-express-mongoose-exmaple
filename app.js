@@ -30,8 +30,6 @@ app.delete('/user/:id', async(req, res) => {
     res.send(result)
 })
 
-
-
 app.get('/user', async(req, res) => {
     var users = await UserModel.find().exec()
     res.send(users)
@@ -48,4 +46,68 @@ app.post('/user', (req, res) => {
     })
 
 })
+
+
+
+app.get('/user/byage/:min/:max', async(req, res) => {
+    /*
+    UserModel.find({ age: { $gt: req.params.min, $lt: req.params.max } },
+        function(err,
+            users) {
+            res.send(users);
+        });
+       
+
+    UserModel.where('age').gt(req.params.min).lt(req.params.max).limit(2)
+        .exec((err, users) => {
+            res.send(users);
+        })
+         */
+
+    let result = await UserModel.where('age').gt(req.params.min).lt(req.params.max).limit(2).exec()
+    res.send(res)
+
+})
+
+app.get('/test', (req, res) => {
+    var cursor = UserModel.find({ age: { $gt: 15, $lt: 30 } }).cursor();
+    cursor.on('data', function(doc) {
+        console.log(doc)
+        console.log("-----------")
+    });
+
+    cursor.on('close', function() {
+        console.log("done")
+    });
+})
+
+
+app.post('/transction', (req, res) => {
+
+    try {
+        let session = mongoose.startSession()
+        session.startTransation();
+
+        //statements to perform multiple updates on collections
+
+        session.commitTransaction();
+
+    } catch (e) {
+        session.abortTransaction();
+    } finally {
+        session.endSession()
+    }
+
+
+
+
+
+
+
+
+
+
+
+})
+
 app.listen(3000)
